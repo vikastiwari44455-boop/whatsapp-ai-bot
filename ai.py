@@ -1,39 +1,22 @@
 import os
-import requests
+from openai import OpenAI
 
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 AI_PROMPT = os.getenv(
     "AI_PROMPT",
     "You are a helpful Telegram AI assistant. Reply short and polite."
 )
+
 def get_ai_reply(user_message):
-
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={GEMINI_API_KEY}"
-
-    headers = {
-        "Content-Type": "application/json"
-    }
-
-    data = {
-        "contents": [
-            {
-                "parts": [
-                    {"text": AI_PROMPT + "\nUser: " + user_message}
-                ]
-            }
-        ]
-    }
-
-    response = requests.post(url, headers=headers, json=data)
-
-    result = response.json()
-    print("GEMINI RESPONSE:", result)   # 🔥 VERY IMPORTANT DEBUG
-
     try:
-        return result["candidates"][0]["content"]["parts"][0]["text"]
+        response = client.responses.create(
+            model="gpt-4.1-mini",   # fast + cheap
+            input=f"{AI_PROMPT}\nUser: {user_message}"
+        )
+
+        return response.output_text
+
     except Exception as e:
-        print("AI ERROR:", e)
+        print("OPENAI ERROR:", e)
         return "AI response error — check Render logs."
-
-
