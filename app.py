@@ -14,13 +14,19 @@ def telegram_webhook():
 
     if "message" in data:
         chat_id = data["message"]["chat"]["id"]
-        user_text = data["message"].get("text","")
+        user_text = data["message"].get("text", "")
 
         if user_text:
             ai_reply = get_ai_reply(user_text)
             send_message(chat_id, ai_reply)
 
     return "ok"
+
+
+@app.route("/")
+def home():
+    return "Telegram AI Bot Running"
+
 
 
 def send_message(chat_id, text):
@@ -34,11 +40,7 @@ def send_message(chat_id, text):
 
     requests.post(url, json=payload)
 
-
-@app.route("/")
-def home():
-    return "Telegram AI Bot Running"
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
+
