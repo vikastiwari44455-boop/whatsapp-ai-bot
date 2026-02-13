@@ -1,58 +1,40 @@
 from flask import Flask, request
 import requests
-from config import ACCESS_TOKEN, PHONE_NUMBER_ID, VERIFY_TOKEN
-from ai import ask_ai
 import os
+from ai import get_ai_reply
 
 app = Flask(__name__)
 
-def send_message(to, text):
-    url = f"https://graph.facebook.com/v19.0/{PHONE_NUMBER_ID}/messages"
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
-    headers = {
-        "Authorization": f"Bearer {ACCESS_TOKEN}",
-        "Content-Type": "application/json"
-    }
+@app.route("/", methods=["POST"])
+def telegram_webhook():
 
-    data = {
-        "messaging_product": "whatsapp",
-        "to": to,
-        "type": "text",
-        "text": {"body": text}
-    }
-
-    requests.post(url, headers=headers, json=data)
-
-
-@app.route("/webhook", methods=["GET"])
-def verify():
-    token = request.args.get("hub.verify_token")
-    challenge = request.args.get("hub.challenge")
-
-    if token == VERIFY_TOKEN:
-        return challenge
-    return "Error"
-
-
-@app.route("/webhook", methods=["POST"])
-def webhook():
     data = request.json
 
-    try:
-        msg = data["entry"][0]["changes"][0]["value"]["messages"][0]
-        sender = msg["from"]
-        text = msg["text"]["body"]
+    if "message" in data:
+        chat_id = data["message"]["chat"]["id"]
+        user_text = data["message"].get("text","")
 
-        reply = ask_ai(text)
+        if user_text:
+            ai_reply = get_ai_reply(user_text)
+            send_message(chat_id, ai_reply)
 
-        send_message(sender, reply)
-
-    except Exception as e:
-        print("Error:", e)
-
-    return "OK", 200
+    return "ok"
 
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+def send_message(chat_id, text):
+
+    url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+
+    payload = {
+        "chat_id": chat_id,
+        "text": text
+    }
+
+    requests.post(url, json=payload)
+
+
+@app.route("/")
+def home():
+    return "Telegram AI Bot Running"
