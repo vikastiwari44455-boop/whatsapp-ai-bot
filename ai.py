@@ -7,7 +7,6 @@ AI_PROMPT = os.getenv(
     "AI_PROMPT",
     "You are a helpful Telegram AI assistant. Reply short and polite."
 )
-
 def get_ai_reply(user_message):
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={GEMINI_API_KEY}"
@@ -29,9 +28,12 @@ def get_ai_reply(user_message):
     response = requests.post(url, headers=headers, json=data)
 
     result = response.json()
+    print("GEMINI RESPONSE:", result)   # 🔥 VERY IMPORTANT DEBUG
 
     try:
         return result["candidates"][0]["content"]["parts"][0]["text"]
-    except:
-        return "Sorry, I couldn't generate a reply."
+    except Exception as e:
+        print("AI ERROR:", e)
+        return "AI response error — check Render logs."
+
 
