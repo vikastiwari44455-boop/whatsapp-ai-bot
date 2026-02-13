@@ -1,24 +1,36 @@
+import os
 import requests
-from config import OPENAI_API_KEY, AI_PROMPT
 
-def ask_ai(user_message):
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-    url = "https://api.openai.com/v1/chat/completions"
+AI_PROMPT = os.getenv(
+    "AI_PROMPT",
+    "You are a helpful Telegram AI assistant. Reply short and polite."
+)
+
+def get_ai_reply(user_message):
+
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
 
     headers = {
-        "Authorization": f"Bearer {OPENAI_API_KEY}",
         "Content-Type": "application/json"
     }
 
     data = {
-        "model": "gpt-4o-mini",
-        "messages": [
-            {"role": "system", "content": AI_PROMPT},
-            {"role": "user", "content": user_message}
+        "contents": [
+            {
+                "parts": [
+                    {"text": AI_PROMPT + "\nUser: " + user_message}
+                ]
+            }
         ]
     }
 
     response = requests.post(url, headers=headers, json=data)
+
     result = response.json()
 
-    return result["choices"][0]["message"]["content"]
+    try:
+        return result["candidates"][0]["content"]["parts"][0]["text"]
+    except:
+        return "Sorry, I couldn't generate a reply."
