@@ -10,7 +10,7 @@ AI_PROMPT = os.getenv(
 
 def get_ai_reply(user_message):
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={GEMINI_API_KEY}"
 
     headers = {
         "Content-Type": "application/json"
@@ -34,3 +34,4 @@ def get_ai_reply(user_message):
         return result["candidates"][0]["content"]["parts"][0]["text"]
     except:
         return "Sorry, I couldn't generate a reply."
+
