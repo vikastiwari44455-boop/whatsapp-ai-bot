@@ -10,11 +10,7 @@ AI_PROMPT = os.getenv(
 
 def get_ai_reply(user_message):
 
-    print("🔥 AI FUNCTION CALLED")
-    print("USER MESSAGE:", user_message)
-    print("API KEY EXISTS:", GEMINI_API_KEY is not None)
-
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
 
     headers = {
         "Content-Type": "application/json"
@@ -23,8 +19,11 @@ def get_ai_reply(user_message):
     data = {
         "contents": [
             {
+                "role": "user",
                 "parts": [
-                    {"text": AI_PROMPT + "\nUser: " + user_message}
+                    {
+                        "text": f"{AI_PROMPT}\nUser: {user_message}"
+                    }
                 ]
             }
         ]
@@ -32,13 +31,17 @@ def get_ai_reply(user_message):
 
     try:
         response = requests.post(url, headers=headers, json=data)
-        print("STATUS CODE:", response.status_code)
-        print("RAW RESPONSE:", response.text)
-
         result = response.json()
+
+        # 🔥 VERY IMPORTANT DEBUG LINE
+        print("GEMINI RESPONSE:", result)
+
+        # If Gemini gives error
+        if "candidates" not in result:
+            return "Gemini error — check Render logs."
 
         return result["candidates"][0]["content"]["parts"][0]["text"]
 
     except Exception as e:
-        print("🚨 GEMINI ERROR:", e)
+        print("AI ERROR:", e)
         return "AI busy right now, try again."
