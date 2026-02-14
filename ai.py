@@ -10,7 +10,7 @@ AI_PROMPT = os.getenv(
 
 def get_ai_reply(user_message):
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GEMINI_API_KEY}"
 
     headers = {
         "Content-Type": "application/json"
@@ -20,7 +20,7 @@ def get_ai_reply(user_message):
         "contents": [
             {
                 "parts": [
-                    {"text": f"{AI_PROMPT}\nUser: {user_message}"}
+                    {"text": AI_PROMPT + "\nUser: " + user_message}
                 ]
             }
         ]
@@ -30,18 +30,17 @@ def get_ai_reply(user_message):
         response = requests.post(url, headers=headers, json=data, timeout=20)
         result = response.json()
 
-        print("GEMINI RESPONSE:", result)  # debug in Render logs
+        print("GEMINI RESPONSE:", result)
 
-        # ✅ Safe parsing
-        if "candidates" in result and len(result["candidates"]) > 0:
+        if "candidates" in result:
             return result["candidates"][0]["content"]["parts"][0]["text"]
 
         if "error" in result:
-            print("Gemini ERROR:", result["error"])
+            print("GEMINI ERROR:", result["error"])
             return "AI busy right now, try again."
 
-        return "No AI response received."
+        return "AI temporary issue."
 
     except Exception as e:
-        print("REQUEST ERROR:", e)
-        return "Server AI error."
+        print("AI EXCEPTION:", e)
+        return "AI server error."
