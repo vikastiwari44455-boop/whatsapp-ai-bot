@@ -9,8 +9,7 @@ AI_PROMPT = os.getenv(
 )
 
 def get_ai_reply(user_message):
-
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={GEMINI_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
     headers = {
         "Content-Type": "application/json"
@@ -45,4 +44,5 @@ def get_ai_reply(user_message):
     except Exception as e:
         print("AI ERROR:", e)
         return "AI busy right now, try again."
+
 
