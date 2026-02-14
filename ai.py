@@ -1,6 +1,6 @@
 import os
 import requests
-print("NEW AI FILE LOADED")
+
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 AI_PROMPT = os.getenv(
@@ -9,6 +9,10 @@ AI_PROMPT = os.getenv(
 )
 
 def get_ai_reply(user_message):
+
+    print("🔥 AI FUNCTION CALLED")
+    print("USER MESSAGE:", user_message)
+    print("API KEY EXISTS:", GEMINI_API_KEY is not None)
 
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GEMINI_API_KEY}"
 
@@ -26,14 +30,15 @@ def get_ai_reply(user_message):
         ]
     }
 
-    response = requests.post(url, headers=headers, json=data)
-
-    result = response.json()
-    print("GEMINI RESPONSE:", result)
-
     try:
+        response = requests.post(url, headers=headers, json=data)
+        print("STATUS CODE:", response.status_code)
+        print("RAW RESPONSE:", response.text)
+
+        result = response.json()
+
         return result["candidates"][0]["content"]["parts"][0]["text"]
-    except:
+
+    except Exception as e:
+        print("🚨 GEMINI ERROR:", e)
         return "AI busy right now, try again."
-
-
