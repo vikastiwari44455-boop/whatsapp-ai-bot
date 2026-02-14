@@ -1,6 +1,6 @@
 import os
 import requests
-
+print("NEW AI FILE LOADED")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 AI_PROMPT = os.getenv(
@@ -35,4 +35,5 @@ def get_ai_reply(user_message):
         return result["candidates"][0]["content"]["parts"][0]["text"]
     except:
         return "AI busy right now, try again."
+
 
